@@ -178,7 +178,7 @@ export async function GET(
   const { id } = await context.params;
 
   // 🐌 Simulate slow API milliseconds
-  await sleep(450);
+  await sleep(0);
 
   const product = products[id as ProductId];
 

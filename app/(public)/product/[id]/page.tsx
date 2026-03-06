@@ -89,7 +89,7 @@ export default function ProductPage({
           </div>
         ) : (
           <div className="bg-orange-500 text-white px-6 py-3 rounded-full shadow-lg mb-6 text-center font-bold animate-fadeIn">
-            🐌 Slow Load - API call mới (~1500ms)
+            🐌 Slow Load - API call mới (~{loadTime}ms)
           </div>
         )}
 
