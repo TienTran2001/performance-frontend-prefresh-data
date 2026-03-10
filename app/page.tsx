@@ -1,5 +1,5 @@
-import HoverLink from '@/components/hover-link';
-import Link from 'next/link';
+import ProductList from '@/components/product-list';
+import UserList from '@/components/user-list';
 
 export default function Home() {
   return (
@@ -11,10 +11,10 @@ export default function Home() {
             Next Faster ⚡
           </h1>
           <p className="text-xl text-gray-600 mb-4">
-            Demo Hover Prefetch với API Cache
+            Generic Hover Prefetch Component
           </p>
           <p className="text-gray-500">
-            Hover vào link để prefetch data, navigate sẽ instant!
+            Một component tái sử dụng được cho mọi loại data!
           </p>
         </div>
 
@@ -47,42 +47,84 @@ export default function Home() {
         </div>
 
         {/* Product List */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
           <h2 className="text-3xl font-bold mb-6 text-gray-800">
-            📦 Product List
+            📦 Products (Custom Prefetch)
           </h2>
           <p className="text-gray-600 mb-6">
-            Hover vào link để prefetch API data. Sau đó click sẽ thấy page load
-            instant!
+            Hover vào product card → Prefetch với{' '}
+            <code className="bg-gray-100 px-2 py-1 rounded">
+              usePrefetchProduct()
+            </code>
           </p>
 
-          <div className="grid gap-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => (
-              <HoverLink key={id} prefetch={true} href={`/product/${id}`}>
-                <div className="bg-gray-50 p-6 rounded-lg hover:bg-blue-50 transition border border-gray-200 hover:border-blue-300">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                        Product {id}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Hover để prefetch, click để xem chi tiết
-                      </p>
-                    </div>
-
-                    <span className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-semibold">
-                      Xem chi tiết →
-                    </span>
-                  </div>
-                </div>
-              </HoverLink>
-            ))}
-          </div>
+          <ProductList />
         </div>
 
-        <Link href="/contact" prefetch={true}>
-          order link
-        </Link>
+        {/* User List */}
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <h2 className="text-3xl font-bold mb-6 text-gray-800">
+            👥 Users (Same Component, Different Hook)
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Hover vào user card → Prefetch với{' '}
+            <code className="bg-gray-100 px-2 py-1 rounded">
+              usePrefetchUser()
+            </code>
+          </p>
+
+          <UserList />
+        </div>
+
+        {/* Generic Component Example */}
+        <div className="mt-8 bg-gradient-to-br from-green-50 to-teal-50 rounded-2xl shadow-xl p-8">
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">
+            🔧 Tính tái sử dụng (Reusability)
+          </h2>
+          <div className="space-y-4 text-gray-700">
+            <p className="font-semibold">
+              ✅ Cùng 1 component{' '}
+              <code className="bg-white px-2 py-1 rounded">
+                &lt;HoverLink&gt;
+              </code>{' '}
+              nhưng dùng cho:
+            </p>
+            <ul className="list-disc list-inside space-y-2 ml-4">
+              <li>
+                📦 Products → Prefetch với{' '}
+                <code className="bg-white px-2 py-1 rounded">
+                  usePrefetchProduct()
+                </code>
+              </li>
+              <li>
+                👥 Users → Prefetch với{' '}
+                <code className="bg-white px-2 py-1 rounded">
+                  usePrefetchUser()
+                </code>
+              </li>
+              <li>
+                📝 Posts → Có thể dùng{' '}
+                <code className="bg-white px-2 py-1 rounded">
+                  usePrefetchPost()
+                </code>
+              </li>
+              <li>
+                🏷️ Categories → Có thể dùng{' '}
+                <code className="bg-white px-2 py-1 rounded">
+                  usePrefetchCategory()
+                </code>
+              </li>
+            </ul>
+            <div className="bg-white p-4 rounded-lg border-2 border-green-200 mt-4">
+              <p className="text-sm font-mono text-green-800">
+                {`<HoverLink href="/product/1" onPrefetch={() => prefetchProduct('1')} />`}
+              </p>
+              <p className="text-sm font-mono text-green-800 mt-2">
+                {`<HoverLink href="/user/john" onPrefetch={() => prefetchUser('john')} />`}
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Explanation */}
         <div className="mt-8 bg-white rounded-2xl shadow-xl p-8">
