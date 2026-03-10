@@ -4,14 +4,24 @@ import React from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
-import { prefetchProduct } from '@/lib/api';
 
 type HoverLinkProps = React.ComponentProps<typeof NextLink> & {
   hoverDelay?: number;
+  /**
+   * Optional callback để prefetch data
+   * Được gọi sau khi delay và trước khi đánh dấu prefetched
+   */
+  onPrefetch?: () => void | Promise<void>;
+  /**
+   * Disable route prefetch (chỉ chạy onPrefetch callback)
+   */
+  disableRoutePrefetch?: boolean;
 };
 
 export default function HoverLink({
   hoverDelay = 200,
+  onPrefetch,
+  disableRoutePrefetch = false,
   children,
   ...props
 }: HoverLinkProps) {
@@ -35,14 +45,20 @@ export default function HoverLink({
     hoverTimeoutRef.current = setTimeout(async () => {
       const hrefString =
         typeof props.href === 'string' ? props.href : props.href.pathname || '';
-      console.log('🖱️ Hover Prefetch:', hrefString);
-      router.prefetch(hrefString);
 
-      // Extract product ID và prefetch data
-      const productId = hrefString.match(/\/product\/(\d+)/)?.[1];
-      if (productId) {
-        await prefetchProduct(productId);
-        console.log('🖱️ Data prefetched for product:', productId);
+      // 1. Prefetch Next.js route (nếu không disable)
+      if (!disableRoutePrefetch) {
+        console.log('🖱️ Hover Prefetch (Route):', hrefString);
+        router.prefetch(hrefString);
+      }
+
+      // 2. Gọi custom prefetch callback (nếu có)
+      if (onPrefetch) {
+        try {
+          await onPrefetch();
+        } catch (error) {
+          console.error('❌ Prefetch callback error:', error);
+        }
       }
 
       setPrefetched(true);
