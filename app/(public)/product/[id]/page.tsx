@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { use, useEffect, useState } from 'react';
-import { fetchProduct, type Product } from '@/lib/api';
+import { use } from 'react';
+import { useProduct } from '@/hooks/use-product';
 
 export default function ProductPage({
   params,
@@ -10,27 +10,11 @@ export default function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [loadTime, setLoadTime] = useState<number>(0);
 
-  useEffect(() => {
-    const startTime = performance.now();
+  // Sử dụng React Query
+  const { data: product, isLoading, error, isFetching } = useProduct(id);
 
-    fetchProduct(id)
-      .then((data) => {
-        const endTime = performance.now();
-        setLoadTime(Math.round(endTime - startTime));
-        setProduct(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching product:', error);
-        setLoading(false);
-      });
-  }, [id]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 flex items-center justify-center">
         <div className="text-center">
@@ -38,19 +22,19 @@ export default function ProductPage({
           <h2 className="text-2xl font-bold text-gray-700">
             Loading Product...
           </h2>
-          <p className="text-gray-500 mt-2">Đang fetch từ API...</p>
+          <p className="text-gray-500 mt-2">React Query đang fetch...</p>
         </div>
       </div>
     );
   }
 
-  if (!product) {
+  if (error || !product) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">❌</div>
           <h2 className="text-2xl font-bold text-gray-700">
-            Product Not Found
+            {error ? 'Error loading product' : 'Product Not Found'}
           </h2>
           <Link
             href="/"
@@ -67,7 +51,8 @@ export default function ProductPage({
   const prevId = productId > 1 ? productId - 1 : null;
   const nextId = productId < 20 ? productId + 1 : null;
 
-  const isCached = loadTime < 100;
+  // Check xem data có phải từ cache không (nếu không fetching = đã có trong cache)
+  const isCached = !isFetching;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
@@ -85,11 +70,11 @@ export default function ProductPage({
         {/* Performance Badge */}
         {isCached ? (
           <div className="bg-green-500 text-white px-6 py-3 rounded-full shadow-lg mb-6 text-center font-bold animate-fadeIn">
-            ⚡ INSTANT LOAD - Data đã được cache! ({loadTime}ms)
+            ⚡ INSTANT LOAD - React Query Cache!
           </div>
         ) : (
           <div className="bg-orange-500 text-white px-6 py-3 rounded-full shadow-lg mb-6 text-center font-bold animate-fadeIn">
-            🐌 Slow Load - API call mới (~{loadTime}ms)
+            🐌 Slow Load - Fresh API call (~1500ms)
           </div>
         )}
 
@@ -203,7 +188,7 @@ export default function ProductPage({
               isCached ? 'text-green-800' : 'text-orange-800'
             }`}
           >
-            {isCached ? '⚡ Cached Response' : '🐌 Fresh API Call'}
+            {isCached ? '⚡ React Query Cache Hit!' : '🐌 Fresh API Call'}
           </h3>
           <p
             className={`text-sm ${
@@ -211,11 +196,11 @@ export default function ProductPage({
             }`}
           >
             {isCached
-              ? `Data đã được prefetch và cache! Navigation instant trong ${loadTime}ms.`
-              : `API call mới, phải đợi ~1500ms. Hãy prefetch trước để có trải nghiệm tốt hơn!`}
+              ? 'Data đã được prefetch bởi React Query! Navigation instant.'
+              : 'API call mới, phải đợi ~1500ms. Hover trước để prefetch và cache!'}
           </p>
           <div className="mt-3 text-xs font-mono bg-white/50 p-2 rounded">
-            Load time: {loadTime}ms | Fetched at:{' '}
+            React Query Cache | Fetched at:{' '}
             {new Date(product.fetchedAt).toLocaleTimeString()}
           </div>
         </div>
