@@ -13,6 +13,7 @@ export default function ProductList() {
           key={id}
           href={`/product/${id}`}
           onPrefetch={() => prefetchProduct(String(id))}
+          prefetch={true}
         >
           <div className="bg-gray-50 p-6 rounded-lg hover:bg-blue-50 transition border border-gray-200 hover:border-blue-300">
             <div className="flex items-center justify-between">
